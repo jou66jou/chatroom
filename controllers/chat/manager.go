@@ -3,9 +3,18 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 
 	"github.com/gorilla/websocket"
+	uuid "github.com/satori/go.uuid"
 )
+
+type ClientManager struct {
+	clients    map[*Client]bool
+	broadcast  chan []byte
+	register   chan *Client
+	unregister chan *Client
+}
 
 var Manager = ClientManager{
 	broadcast:  make(chan []byte),
@@ -34,13 +43,6 @@ func (Manager *ClientManager) Start() {
 			for conn := range Manager.clients {
 				select {
 				case conn.send <- message:
-					fmt.Println(conn.id + " - broadcast send")
-
-					// default:
-					// 	fmt.Println(conn.id + " - broadcast close")
-
-					// 	// close(conn.send)
-					// 	// delete(Manager.clients, conn)
 				}
 			}
 		}
@@ -54,40 +56,20 @@ func (Manager *ClientManager) Send(message []byte, ignore *Client) {
 		}
 	}
 }
-
-func (c *Client) Read() {
-	defer func() {
-		Manager.unregister <- c
-		c.socket.Close()
-	}()
-
-	for {
-		_, message, err := c.socket.ReadMessage()
-		if err != nil {
-			Manager.unregister <- c
-			c.socket.Close()
-			break
-		}
-		jsonMessage, _ := json.Marshal(&Message{Sender: c.id, Content: string(message)})
-		fmt.Println(c.id + " : " + string(message))
-		Manager.broadcast <- jsonMessage
+func NewClient(res http.ResponseWriter, req *http.Request) {
+	fmt.Println("new client ws connting...")
+	conn, err := (&websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}).Upgrade(res, req, nil)
+	if err != nil {
+		fmt.Println("new client error: " + err.Error())
+		http.NotFound(res, req)
+		return
 	}
-}
+	id, _ := uuid.NewV4()
+	client := &Client{id: id.String(), socket: conn, send: make(chan []byte)}
 
-func (c *Client) Write() {
-	defer func() {
-		c.socket.Close()
-	}()
+	Manager.register <- client
+	fmt.Println(id.String() + " -success register new client ws conntion")
 
-	for {
-		select {
-		case message, ok := <-c.send:
-			if !ok {
-				c.socket.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
-
-			c.socket.WriteMessage(websocket.TextMessage, message)
-		}
-	}
+	go client.Read()
+	go client.Write()
 }
