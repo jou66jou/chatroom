@@ -3,6 +3,7 @@ package routers
 import (
 	"fmt"
 	"net/http"
+	"net/http/pprof"
 
 	controllers "github.com/jou66jou/go-chat-room/controllers/chat"
 
@@ -22,6 +23,11 @@ func init() {
 	// fmt.Println("HTTP Method list:")
 	fmt.Println("Websocket : /chatroom - call the websocket into chatroom")
 	register("", "/chatroom", controllers.NewClient, nil)
+	register("", "/debug/pprof/", pprof.Index, nil)
+	register("", "/debug/pprof/cmdline", pprof.Cmdline, nil)
+	register("", "/debug/pprof/profile", pprof.Profile, nil)
+	register("", "/debug/pprof/symbol", pprof.Symbol, nil)
+	register("", "/debug/pprof/trace", pprof.Trace, nil)
 	fmt.Println("")
 
 }
