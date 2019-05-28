@@ -14,10 +14,14 @@ import (
 var wg sync.WaitGroup
 
 func main() {
-	var port string = "8080"
+	ip := "localhost"
+	port := "8080"
+	fmt.Println("Server ip (default localhost):")
+	SwitchScanf(&ip)
+
 	fmt.Println("Server port (default 8080):")
 	SwitchScanf(&port)
-	var addr = flag.String("addr", "localhost:"+port, "http service address")
+	var addr = flag.String("addr", ip+":"+port, "http service address")
 	for i := 0; i < 5; i++ {
 		u := url.URL{Scheme: "ws", Host: *addr, Path: "/chatroom"}
 		var dialer *websocket.Dialer
