@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 
 	cs "github.com/jou66jou/go-chat-room/controllers/chat"
 	"github.com/jou66jou/go-chat-room/routers"
