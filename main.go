@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	cs "go-chat-room/controllers"
-	"go-chat-room/routers"
 	"log"
 	"net/http"
+
+	cs "github.com/jou66jou/go-chat-room/controllers/chat"
+	"github.com/jou66jou/go-chat-room/routers"
 )
 
 func main() {

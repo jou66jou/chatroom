@@ -2,8 +2,9 @@ package routers
 
 import (
 	"fmt"
-	"go-chat-room/controllers"
 	"net/http"
+
+	controllers "github.com/jou66jou/go-chat-room/controllers/chat"
 
 	"github.com/gorilla/mux"
 )
