@@ -16,13 +16,21 @@ var wg sync.WaitGroup
 func main() {
 	ip := "localhost"
 	port := "8080"
+	count := 10000
 	fmt.Println("Server ip (default localhost):")
 	SwitchScanf(&ip)
 
 	fmt.Println("Server port (default 8080):")
 	SwitchScanf(&port)
+
+	fmt.Println("client count (default 10000):")
+	_, err := fmt.Scanf("%d", &count)
+	if err != nil {
+		fmt.Println("not integer, exit.")
+		return
+	}
 	var addr = flag.String("addr", ip+":"+port, "http service address")
-	for i := 0; i < 5; i++ {
+	for i := 0; i < count; i++ {
 		u := url.URL{Scheme: "ws", Host: *addr, Path: "/chatroom"}
 		var dialer *websocket.Dialer
 
@@ -34,7 +42,7 @@ func main() {
 		wg.Add(2)
 		go timeWriter(i, conn)
 		go wsRead(i, conn)
-		time.Sleep(time.Second * 2)
+		time.Sleep(2 * time.Millisecond)
 
 	}
 	wg.Wait()
