@@ -23,11 +23,11 @@ func init() {
 	// fmt.Println("HTTP Method list:")
 	fmt.Println("Websocket : /chatroom - call the websocket into chatroom")
 	register("", "/chatroom", controllers.NewClient, nil)
-	register("", "/debug/pprof/", pprof.Index, nil)
-	register("", "/debug/pprof/cmdline", pprof.Cmdline, nil)
-	register("", "/debug/pprof/profile", pprof.Profile, nil)
-	register("", "/debug/pprof/symbol", pprof.Symbol, nil)
-	register("", "/debug/pprof/trace", pprof.Trace, nil)
+	register("GET", "/debug/pprof/", pprof.Index, nil)
+	register("GET", "/debug/pprof/cmdline", pprof.Cmdline, nil)
+	register("GET", "/debug/pprof/profile", pprof.Profile, nil)
+	register("GET", "/debug/pprof/symbol", pprof.Symbol, nil)
+	register("GET", "/debug/pprof/trace", pprof.Trace, nil)
 	fmt.Println("")
 
 }
