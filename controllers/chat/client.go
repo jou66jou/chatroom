@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/gorilla/websocket"
 )
@@ -27,7 +26,7 @@ func (c *Client) Read() {
 			break
 		}
 		jsonMessage, _ := json.Marshal(&Message{Sender: c.id, Content: string(message)})
-		fmt.Println(c.id + " : " + string(message))
+		// fmt.Println(c.id + " : " + string(message))
 		Manager.broadcast <- jsonMessage
 	}
 }

@@ -14,20 +14,19 @@ import (
 var wg sync.WaitGroup
 
 func main() {
-	ip := "localhost"
+	ip := "192.168.50.181"
 	port := "8080"
 	count := 10000
-	fmt.Println("Server ip (default localhost):")
+	fmt.Println("Server ip (default " + ip + "):")
 	SwitchScanf(&ip)
 
-	fmt.Println("Server port (default 8080):")
+	fmt.Println("Server port (default " + port + "):")
 	SwitchScanf(&port)
 
 	fmt.Println("client count (default 10000):")
 	_, err := fmt.Scanf("%d", &count)
 	if err != nil {
-		fmt.Println("not integer, exit.")
-		return
+		count = 10000
 	}
 	var addr = flag.String("addr", ip+":"+port, "http service address")
 	for i := 0; i < count; i++ {
@@ -36,35 +35,39 @@ func main() {
 
 		conn, _, err := dialer.Dial(u.String(), nil)
 		if err != nil {
-			fmt.Println(err)
-			return
+			fmt.Println("conn err: " + err.Error())
+			break
 		}
 		wg.Add(2)
 		go timeWriter(i, conn)
 		go wsRead(i, conn)
-		time.Sleep(2 * time.Millisecond)
+		fmt.Printf("create client: %d\n", i)
+		time.Sleep(1 * time.Millisecond)
 
 	}
+	fmt.Printf("create client done: %d\n", count)
+
 	wg.Wait()
 }
 
 func wsRead(i int, conn *websocket.Conn) {
+	conn.SetReadDeadline(time.Now().Add(100 * time.Minute))
 	for {
-		_, message, err := conn.ReadMessage()
+		_, _, err := conn.ReadMessage()
 		if err != nil {
 			fmt.Println("read ", "No."+strconv.Itoa(i)+" : ", err)
 			wg.Done()
 			return
 		}
 
-		fmt.Printf("received: %s\n", message)
+		// fmt.Printf("received: %s\n", message)
 	}
 	wg.Done()
 
 }
 func timeWriter(i int, conn *websocket.Conn) {
 	for {
-		time.Sleep(time.Second * 2)
+		time.Sleep(time.Second * 10)
 		conn.WriteMessage(websocket.TextMessage, []byte("No."+strconv.Itoa(i)+" : "+time.Now().Format("2006-01-02 15:04:05")))
 	}
 	wg.Done()
