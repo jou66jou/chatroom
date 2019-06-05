@@ -37,34 +37,36 @@ func main() {
 		conn, _, err := dialer.Dial(u.String(), nil)
 		if err != nil {
 			fmt.Println(err)
-			return
+			break
 		}
-		wg.Add(2)
-		go timeWriter(i, conn)
+		wg.Add(1)
+		// go timeWriter(i, conn)
 		go wsRead(i, conn)
-		time.Sleep(2 * time.Millisecond)
+		fmt.Println("create client: %d", i)
+		time.Sleep(1 * time.Millisecond)
 
 	}
+	fmt.Println("done")
 	wg.Wait()
 }
 
 func wsRead(i int, conn *websocket.Conn) {
 	for {
-		_, message, err := conn.ReadMessage()
+		_, _, err := conn.ReadMessage()
 		if err != nil {
 			fmt.Println("read ", "No."+strconv.Itoa(i)+" : ", err)
 			wg.Done()
 			return
 		}
 
-		fmt.Printf("received: %s\n", message)
+		// fmt.Printf("received: %s\n", message)
 	}
 	wg.Done()
 
 }
 func timeWriter(i int, conn *websocket.Conn) {
 	for {
-		time.Sleep(time.Second * 2)
+		time.Sleep(time.Second * 10)
 		conn.WriteMessage(websocket.TextMessage, []byte("No."+strconv.Itoa(i)+" : "+time.Now().Format("2006-01-02 15:04:05")))
 	}
 	wg.Done()

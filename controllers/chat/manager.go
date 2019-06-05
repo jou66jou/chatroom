@@ -23,6 +23,8 @@ var Manager = ClientManager{
 	clients:    make(map[*Client]bool),
 }
 
+var count int = 0
+
 func (Manager *ClientManager) Start() {
 	for {
 		select {
